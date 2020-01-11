@@ -1,0 +1,465 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:head>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+			  integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+			  crossorigin=""/>
+		<script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+			  integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+			  crossorigin=""></script>
+			  
+	  	<style>
+			#mapid {height: 300px; position: relative; padding: 0px; margin: 0 auto 0 auto;}
+		</style>
+	</h:head>
+	
+	<h:body>
+		<p:growl id="messages" showDetail="true"/>		
+		
+		<h:form>
+			<p:menubar>
+				<p:menuitem value="Client" url="../client/client.xhtml"/>
+				
+				<p:menuitem value="PDPTW" url="../client/pdp_client.xhtml"/>
+				
+				<p:menuitem value="Product" url="../product/product.xhtml"/>
+				
+				<p:menuitem value="Vehicle" url="../vehicle/vehicle.xhtml"/>
+			</p:menubar>
+		</h:form>
+		
+		<br></br>
+			
+    	<p:tabView id="allTabsId">    		
+    		
+    		<p:tab id="tabClientId" title="Clients">	    			
+    			<h:form id="cliForm">    				
+    				
+ 					<p:commandButton value="Tryout" actionListener="#{pdptwView.teste}" 
+ 						update="allTabsId:formTableRoute:tableRoutes"/>
+	    			
+	   				<p:tabView id="tabViewRequest">
+		   				<p:tab id="tabClient" title="Request">	
+			   				<p:fieldset legend="Clients">
+			   					<h:panelGrid columns="6">	 	    					    				  			
+				    				<h:outputText for="codigo" value="Code:"/>
+				    				<p:inputText id="codigo" value="#{pdptwView.client.id}"/>
+				    				
+				    				<h:outputText for="nome" value="Name:"/>
+				    				<p:inputText id="nome" value="#{pdptwView.client.name}"/>
+				    				
+				    				<h:outputText for="address" value="Address:"/>
+				    				<p:inputText id="address" value="#{pdptwView.client.location.address}"/>
+				    					    			
+				    				<p:commandButton value="Search Clients" actionListener="#{pdptwView.searchClients}" 
+				    					update="messages, clientTable, codigo, nome, address"/>
+				    			</h:panelGrid>
+				    			
+				    			<p:dataTable id="clientTable" var="cli" value="#{pdptwView.searchedClients}" rows="5"
+				    				paginator="true" style="margin-top:2%;">
+				    				<f:facet name="header">
+				    					Clients List
+				    				</f:facet>
+				    					    				
+				    				<p:column headerText="Name">
+				    					<h:outputText id="cliName" value="#{cli.name}"/>
+				    					<p:draggable for="cliName" revert="true" helper="clone"/>
+				    				</p:column>
+				    				
+				    				<p:column headerText="Latitude" style="width:10%;">
+				    					<h:outputText value="#{cli.location.lat}"/>
+				    				</p:column>
+				    				
+				    				<p:column headerText="Longitude" style="width:10%;">
+				    					<h:outputText value="#{cli.location.lon}"/>
+				    				</p:column>
+				    				
+				    				<p:column headerText="Longitude" style="width:40%;">
+				    					<h:outputText value="#{cli.location.address}"/>
+				    				</p:column>
+				    			</p:dataTable>
+				    			
+				    			
+				    			<p:fieldset id="pickupCli" legend="Pickup Client" style="margin-top: 2%; width:40%;">				    				
+				    				<p:outputPanel id="dropPickupArea">
+				    					<h:panelGrid columns="2">
+				    						<h:outputText value="Client:"/>
+				    						<h:outputText value="#{pdptwView.pair.pickup.name}"/>
+				    					</h:panelGrid>
+				    				</p:outputPanel>
+				    			</p:fieldset>
+				    			
+				    			<p:fieldset id="deliveryCli" legend="Delivery Client" 
+				    				style=" float:right; margin-top:-6.5%; width:40%;">
+				    				<p:outputPanel id="dropDeliveryArea">
+				    					<h:panelGrid columns="2">
+				    						<h:outputText value="Client:"/>
+				    						<h:outputText value="#{pdptwView.pair.delivery.name}"/>
+				    					</h:panelGrid>
+				    				</p:outputPanel>
+				    			</p:fieldset>
+				    			
+				    			<p:droppable for="pickupCli" tolerance="touch" datasource="clientTable" >
+				    				<p:ajax listener="#{pdptwView.onDropPickup}" update="dropPickupArea, messages"/>
+				    			</p:droppable>
+				    			
+				    			<p:droppable for="deliveryCli" tolerance="touch" datasource="clientTable" >
+				    				<p:ajax listener="#{pdptwView.onDropDelivery}" update="dropDeliveryArea, messages"/>
+				    			</p:droppable>	
+			    			</p:fieldset>
+			    			
+			    			<p:fieldset legend="Demand" style="margin-top:2%;">
+			    				<h:panelGrid columns="4">
+									<h:outputText for="id" value="Code:"/>
+									<p:inputText id="id" value="#{pdptwView.prd.id}"/>						
+									
+									<h:outputText for="name" value="Name:"/>
+									<p:inputText id="name" value="#{pdptwView.prd.name}"/>
+									
+									<p:commandButton value="Search" actionListener="#{pdptwView.searchProducts}" 
+										update="messages, productTable, id, name"/>
+								</h:panelGrid>					
+							
+							
+								<p:dataTable id="productTable" var="prd" value="#{pdptwView.searchedProducts}" rows="5"
+				    				paginator="true" style="margin-top:2%;">
+				    				<f:facet name="header">
+				    					Product List
+				    				</f:facet>
+				    				
+				    				<p:column headerText="Code">
+				    					<h:outputText id="prdId" value="#{prd.id}"/>
+				    					<p:draggable for="prdId" revert="true" helper="clone"/>
+				    				</p:column>
+				    				
+				    				<p:column headerText="Name">
+				    					<h:outputText value="#{prd.name}"/>
+				    				</p:column>
+				    				
+				    				<p:column headerText="Unit">
+				    					<h:outputText value="#{prd.unit}"/>
+				    				</p:column>	    				
+			    				</p:dataTable>
+			    				
+			    				
+			    				<p:fieldset id="demandPrd" legend="Product" style="margin-top: 2%;">
+				    				<p:outputPanel id="dropProductArea">				    					
+				    					<p:dataTable id="demandTable" var="dem" value="#{pdptwView.demands}" 
+				    						rows="5" paginator="true" editable="true" editMode="cell">
+				    						<f:facet name="header">
+				    							Products Demands
+				    						</f:facet>
+				    						
+				    						<p:column headerText="Code">
+				    							<h:outputText value="#{dem.product.id}"/>
+				    						</p:column>
+				    						
+				    						<p:column headerText="Product">
+				    							<h:outputText value="#{dem.product.name}"/>
+				    						</p:column>
+				    						
+				    						<p:column headerText="Product Unit">
+				    							<h:outputText value="#{dem.product.unit}"/>
+				    						</p:column>
+				    						
+				    						<p:column headerText="Demand">
+				    							<p:cellEditor>
+					    							<f:facet name="output"><h:outputText value="#{dem.quantity}"/></f:facet> 
+					    							<f:facet name="input">
+					    								<p:inputText value="#{dem.quantity}">
+					    									<f:convertNumber minFractionDigits="2" locale="pt_BR" pattern="#,##0.00"/>
+					    								</p:inputText> 
+				    								</f:facet>
+			    								</p:cellEditor>
+				    						</p:column>
+				    						
+				    						<p:column headerText="Demand Unit">
+				    							<p:cellEditor>
+					    							<f:facet name="output"><h:outputText value="#{dem.unitMeasure}"/></f:facet>
+					    							<f:facet name="input">
+					    								<p:selectOneMenu id="unit" value="#{dem.unitMeasure}">
+															<f:selectItems value="#{pdptwView.unitsMeasure}" var="unit"/>
+														</p:selectOneMenu>
+					    							</f:facet>
+				    							</p:cellEditor>
+				    						</p:column>
+				    						
+				    						<p:column headerText="Remove">
+				    							<p:commandButton value="Remove" actionListener="#{pdptwView.removeDemand(dem)}" 
+				    								update="demandTable,messages" ajax="true">					    								
+				    							</p:commandButton>
+				    						</p:column>				    					
+				    					</p:dataTable>				    					
+				    				</p:outputPanel>
+				    			</p:fieldset>
+				    			
+				    			<p:droppable for="demandPrd" tolerance="touch" datasource="productTable" >
+				    				<p:ajax listener="#{pdptwView.onDropProduct}" update="dropProductArea, messages"/>
+				    			</p:droppable>
+			    			</p:fieldset>			    			
+		    			</p:tab>		    				
+		    			
+		    			<p:tab id="tabRequestsId" title="Requests">
+		    				<p:dataTable id="requestTableId" var="req" value="#{pdptwView.requests}" 
+		    					rows="10" paginator="true">
+		    					<f:facet name="header">
+		    						Problem Requests
+		    					</f:facet>
+		    					
+		    					<p:column headerText="Pickup Client">
+		    						<h:outputText value="#{req.pickup.name}"/>
+		    					</p:column>
+		    					
+		    					<p:column headerText="Delivery Client">
+		    						<h:outputText value="#{req.delivery.name}"/>
+		    					</p:column>
+		    					
+		    					<p:column headerText="Remove">
+		    						<p:commandButton value="Remove" actionListener="#{pdptwView.removeRequest(req)}"
+		    							update="messages, requestTableId"/>
+		    					</p:column>		    				
+		    				</p:dataTable>
+		    			</p:tab>
+		    			    			
+	    			 </p:tabView>	
+	    			 
+	    			 <h:panelGrid columns="2">
+    					<p:commandButton value="Add" actionListener="#{pdptwView.addRequest}" 
+    						update="tabViewRequest, messages"/>
+   						<p:commandButton value="Clean" actionListener="#{pdptwView.cleanRequest}" 
+    						update="tabViewRequest"/>							
+    				</h:panelGrid>
+	    			 
+    			 </h:form>		   	
+    		</p:tab>
+    		
+    		
+    		
+    		<p:tab id="tabVehicleId" title="Vehicles">    		
+    			<h:form id="vehForm">
+    				<h:panelGrid id="pgVehicleSearch" columns="6">
+						<h:outputText for="id" value="Code:"/>
+						<p:inputText id="id" value="#{pdptwView.vehicle.id}"/>						
+						
+						<h:outputText for="desc" value="Description:"/>
+						<p:inputText id="desc" value="#{pdptwView.vehicle.description}"/>
+						
+						<h:outputText for="cap" value="Capacity:"/>
+						<p:inputText id="cap" value="#{pdptwView.vehicle.capacity}">
+							<f:convertNumber minFractionDigits="2" locale="pt_BR" pattern="#,##0.00"/>
+						</p:inputText>
+						
+						<p:commandButton id="btn" value="Search" actionListener="#{pdptwView.searchVehicles}"
+							update="messages,vehicleTable, id, desc, cap" partialSubmit="true" 
+							process="vehForm:id, vehForm:desc, vehForm:cap"/> 						          
+					</h:panelGrid>	
+									
+					<p:dataTable id="vehicleTable" var="veh" value="#{pdptwView.searchedVehicles}" rows="5"
+	    				paginator="true" style="margin-top:2%;">                
+	    				<f:facet name="header">
+	    					Vehicle List
+	    				</f:facet>
+	    					    				
+	    				<p:column headerText="Code">
+	    					<h:outputText id="vehId" value="#{veh.id}"/>
+	    					<p:draggable for="vehId" revert="true" helper="clone"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Description">
+	    					<h:outputText value="#{veh.description}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Capacity">
+	    					<h:outputText value="#{veh.capacity}">
+	    						<f:convertNumber minFractionDigits="2" locale="pt_BR" pattern="#,##0.00"/>
+	    					</h:outputText>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Unit">
+	    					<h:outputText value="#{veh.capacityUnit}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Fixed Costs R$">
+	    					<h:outputText value="#{veh.fixedCost}">
+	    						<f:convertNumber minFractionDigits="2" locale="pt_BR" type="currency"/>
+	    					</h:outputText>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Variable Costs R$">
+	    					<h:outputText value="#{veh.variableCost}">
+	    						<f:convertNumber minFractionDigits="2" locale="pt_BR" type="currency"/>
+	    					</h:outputText>
+	    				</p:column>	    				
+    				</p:dataTable>
+    				
+    				<p:fieldset id="usedVehicles" legend="Employed Vehicles" style="margin-top:2%;">
+    					<p:outputPanel id="dropVehicleArea">
+    						<p:dataTable id="usedVehicleTable" var="vehu" value="#{pdptwView.usedVehicles}" 
+    							rows="5" paginator="true" >
+    							
+    							<p:column headerText="Code">
+			    					<h:outputText value="#{vehu.id}"/>
+			    				</p:column>
+	    				
+			    				<p:column headerText="Description">
+			    					<h:outputText value="#{vehu.description}"/>
+			    				</p:column>
+			    				
+			    				<p:column headerText="Capacity">
+			    					<h:outputText value="#{vehu.capacity}">
+			    						<f:convertNumber minFractionDigits="2" locale="pt_BR" pattern="#,##0.00"/>
+			    					</h:outputText>
+			    				</p:column>
+			    				
+			    				<p:column headerText="Unit">
+			    					<h:outputText value="#{vehu.capacityUnit}"/>
+		    					</p:column>
+		    					
+		    					<p:column headerText="Costs">
+		    						<p:commandButton value="Costs" oncomplete="PF('dlgVehicleDetails').show();" 
+		    							update="allTabsId:vehForm:vehicleDetailsForm">
+		    							<f:setPropertyActionListener value="#{vehu}" target="#{pdptwView.vehicle}"/>	
+	    							</p:commandButton>
+		    					</p:column>			    	
+		    					
+		    					<p:column headerText="Remove">
+		    						<p:commandButton value="Remove" actionListener="#{pdptwView.removeUsedVehicle(vehu)}"
+		    							update="usedVehicleTable"/>
+		    					</p:column>			
+    						</p:dataTable>
+    					</p:outputPanel>
+   					</p:fieldset>
+   					
+   					<p:droppable for="usedVehicles" tolerance="touch" datasource="vehicleTable" >
+	    				<p:ajax listener="#{pdptwView.onDropVehicle}" update="dropVehicleArea"/>
+	    			</p:droppable>
+   					
+   					<p:dialog id="vehicleDetailsForm" showEffect="fade" widgetVar="dlgVehicleDetails" closable="true">
+   						<h:form id="dlgDetailFormId">
+	   						<h:panelGrid columns="2">
+	   							<h:outputText value="Fixed Cost:"/>
+	   							<h:outputText value="#{pdptwView.vehicle.fixedCost}">
+		    						<f:convertNumber minFractionDigits="2" locale="pt_BR" type="currency"/>
+		    					</h:outputText>
+		    					
+		    					<h:outputText value="Variable Cost:"/>
+	   							<h:outputText value="#{pdptwView.vehicle.variableCost}">
+		    						<f:convertNumber minFractionDigits="2" locale="pt_BR" type="currency"/>
+		    					</h:outputText>		    					
+	   						</h:panelGrid>
+   						</h:form>
+   					</p:dialog>
+    			</h:form>
+    		</p:tab>  
+    		
+    		<p:tab id="tabRoutes" title="Routes">
+   				<h:form>
+	   				<p:outputPanel >
+	   					<div id="mapid"/>
+	   				</p:outputPanel>    				
+    			</h:form>
+    			<h:form id="formTableRoute"> 
+					<p:dataTable id="tableRoutes" paginator="true" rows="5" var="rt" 
+			    			value="#{pdptwView.routes}"> 
+			    			
+			    			<f:facet name="header">
+			    				Routes
+			    			</f:facet>
+			    			
+			    			<p:column headerText="Route Nº">
+			    				<h:outputText value=""/>
+			    			</p:column>
+			    		
+			    			<p:column headerText="Vehicle">
+			    				<h:outputText value="#{rt.vehicle.description}"/>
+			    			</p:column>
+			    			
+			    			<p:column headerText="Route Trajectory">
+			    				<p:commandButton value="Visualize" actionListener="#{pdptwView.generatePath(rt)}" 
+			    					oncomplete="drawRoutePath();" update="allTabsId:formTableRoute:idRoute, allTabsId:formTableRoute:idRouteLocations"/>		    					
+			    			</p:column>
+			    			
+			    			<p:column headerText="Visits Sequence">
+			    				<p:commandButton value="Visualize" actionListener="#{pdptwView.displayRouteVisits(rt)}"
+			    					oncomplete="PF('dlgRouteVisits').show()" 
+			    					update="allTabsId:dlgRouteVisitsDetailFormId:routeVisitsDisplayId"/>
+			    			</p:column>
+		    		</p:dataTable>
+		    		<p:inputText id="idRoute" type="hidden" value="#{pdptwView.path}"/>
+		    		<p:inputText id="idRouteLocations" type="hidden" value="#{pdptwView.locations}"/>
+	    		</h:form>
+	    		
+	    		<p:dialog id="routeVisitsDetailsDlg" showEffect="fade" widgetVar="dlgRouteVisits" closable="true" 
+	    			header="Visits Sequence">
+					<h:form id="dlgRouteVisitsDetailFormId">
+  						<h:outputText id="routeVisitsDisplayId" value="#{pdptwView.routeVisits}"/>
+ 					</h:form>
+				</p:dialog>
+	    			
+    		</p:tab>
+    	</p:tabView>    
+    	
+    	<script src="../js/Polyline.encoded.js"/>
+   		<script type="text/javascript">
+    		/*<![CDATA[*/
+				var mymap = L.map('mapid').setView([-20.81, -49.37], 13);
+				
+				L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+				        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+				    }).addTo(mymap);
+				
+				var polygon;
+				var polyline;
+				var markers = new Array();
+				
+				/*
+				* Function that is responsable for drawning the route's path and add markers that represents customers
+				*/
+				function drawRoutePath(){		
+					if(polygon != null){
+						mymap.removeLayer(polygon);
+						mymap.removeLayer(polyline);
+						for(var i=0; i<markers.length; ++i){
+							var marker = markers[i];
+							mymap.removeLayer(marker)
+						}
+					}
+					var input = document.getElementById('allTabsId:formTableRoute:idRoute');	
+					//alert(input.value);
+					var encoded = input.value;
+					polyline = L.Polyline.fromEncoded(encoded).addTo(mymap);
+					polygon = L.Polygon.fromEncoded(encoded,{
+						weight:1,
+						color: '#f30'
+					}).addTo(mymap);
+					
+					/*
+					* Part responsable for adding markers that represent clients to the map
+					*/
+					var locations = document.getElementById('allTabsId:formTableRoute:idRouteLocations');					
+					var locs = locations.value.split(";");
+					for(var i=0; i<locs.length; ++i){						
+						var str = locs[i];
+						var pos = str.indexOf(",");
+						var title = str.slice(str.indexOf("[")+1,str.indexOf("]"));						
+						var lat = str.slice(str.indexOf("]")+1,pos);
+						var lng = str.slice(pos+1, str.lenght);
+						var marker = L.marker([lat,lng]).addTo(mymap).bindPopup(title).openPopup();
+						markers.push(marker);
+					}
+					
+					mymap.fitBounds(polyline.getBounds());
+				}
+				
+			 /*]]>*/
+		</script>
+    		
+	</h:body>
+</html>

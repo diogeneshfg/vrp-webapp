@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+	
+	<h:head>
+		
+	</h:head>
+	
+	<h:body>
+		<p:growl id="messages" showDetail="true"/>	
+		
+		<h:form id="formPrd">
+			<p:fieldset legend="Cadastro de Produto">
+				<h:panelGrid columns="4">
+					
+					<h:outputText for="name" value="Nome:"/>
+					<p:inputText id="name" value="#{prdView.product.name}"/>
+					
+					<h:outputText for="unit" value="Unidade de Medida:"/>
+					<p:selectOneMenu id="unit" value="#{prdView.product.unit}">
+						<f:selectItems value="#{prdView.unitsMesuare}" var="unit"/>
+					</p:selectOneMenu>		
+				</h:panelGrid>
+				<h:graphicImage value="../icons/finalizar.png" style="width:20pt; height:20pt; float:left; margin-top:0.3%;"/> 
+				<p:commandButton value="Finalizar" style="float:left; margin-left:0.5%;" actionListener="#{prdView.insertOrUpdateProduct}"
+					update="messages, formTabela:productTable, formPrd"/>
+					
+				<h:graphicImage value="../icons/limpar.png" style="width:20pt; height:20pt; float:right; margin-top:0.3%; margin-right:78%;"/> 
+				<p:commandButton value="Limpar" style="float:right; margin-right:70%; margin-top:-2.5%;" 
+					actionListener="#{prdView.cancel}" update="formPrd"/>
+			</p:fieldset>
+		</h:form>
+		
+		<h:form id="formTabela">
+			<div id="divConsulta" style="position:relative; height:50%; margin-top:2%;">
+				<p:fieldset legend="Consulta de Produtos">
+					
+					<h:panelGrid columns="4">
+						<h:outputText for="id" value="Código:"/>
+						<p:inputText id="id" value="#{prdView.product.id}"/>						
+						
+						<h:outputText for="name" value="Nome:"/>
+						<p:inputText id="name" value="#{prdView.product.name}"/>
+						
+						<p:commandButton value="Consultar" actionListener="#{prdView.searchProducts}" 
+							update="messages, productTable, id, name"/>
+					</h:panelGrid>					
+					
+					<p:dataTable id="productTable" var="prd" value="#{prdView.products}" rows="10"
+	    				paginator="true" style="margin-top:2%;">
+	    				<f:facet name="header">
+	    					Lista de Produtos
+	    				</f:facet>
+	    				
+	    				<p:column headerText="Código">
+	    					<h:outputText value="#{prd.id}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Nome:">
+	    					<h:outputText value="#{prd.name}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Unidade">
+	    					<h:outputText value="#{prd.unit}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Alterar">
+	    					<p:commandButton value="Alterar" update="formPrd">
+	    						<f:setPropertyActionListener value="#{prd}" target="#{prdView.product}"/>
+	    					</p:commandButton>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Excluir">
+	    					<p:commandButton value="Excluir" oncomplete="PF('rePrdDlg').show();" 
+	    						update="removalForm:removalMessage">
+	    						<f:setPropertyActionListener value="#{prd}" target="#{prdView.product}"/>
+	    					</p:commandButton>
+	    				</p:column>
+	    				
+    				</p:dataTable>				
+				</p:fieldset>
+			</div>
+		</h:form>
+		
+		<p:dialog id="removalDialog" widgetVar="rePrdDlg" showEffect="fade" closable="false" header="Remover Produto">
+    		<h:form id="removalForm">
+    			<h:outputText id="removalMessage" value="Deseja mesmo remover o produto: #{prdView.product.name} ?"/>    		
+    			<h:panelGrid columns="2">
+    				<p:commandButton value="Sim"  actionListener="#{prdView.removeProduct}"
+    					oncomplete="PF('rePrdDlg').hide();" update="messages, formTabela:productTable"/>
+    				<p:commandButton value="Não" oncomplete="PF('rePrdDlg').hide();" actionListener="#{prdView.cancel}"/>
+    			</h:panelGrid>
+    		</h:form>    	
+    	</p:dialog>
+	
+	</h:body>
+	
+</html>

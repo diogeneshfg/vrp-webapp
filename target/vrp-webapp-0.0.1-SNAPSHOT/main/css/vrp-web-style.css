@@ -1,0 +1,11 @@
+@charset "ISO-8859-1";
+
+.finalizarBtn{
+	background-image: url("../icons/finalizar.png") !important;	
+	background-size: 10pt 10pt;	
+	mar
+}
+
+#btnFinalizar{
+	height:40%; width:50%;
+}

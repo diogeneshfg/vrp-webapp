@@ -1,0 +1,142 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+
+	<h:head>
+		
+	</h:head>
+	
+	<h:body>
+		<p:growl id="messages" showDetail="true"/>	
+		
+		<h:form id="formVeh">
+			<p:fieldset legend="Cadastro de Veículos">
+				<h:panelGrid columns="6">
+					
+					<h:outputText for="desc" value="Descrição:"/>
+					<p:inputText id="desc" value="#{veView.vehicle.description}"/>
+					
+					<h:outputText for="cap" value="Capacidade:"/>
+					<p:inputText id="cap" value="#{veView.vehicle.capacity}">
+						<f:convertNumber minFractionDigits="2" locale="pt_BR" pattern="#,##0.00"/>
+					</p:inputText>
+					
+					<h:outputText for="unit" value="Unidade de Medida:"/>
+					<p:selectOneMenu id="unit" value="#{veView.vehicle.capacityUnit}">
+						<f:selectItems value="#{veView.unitsMesuare}" var="unit"/>
+					</p:selectOneMenu>		
+					
+					<h:outputText for="fCost" value="Custo Fixo R$:"/>
+					<p:inputText id="fCost" value="#{veView.vehicle.fixedCost}">
+						<f:convertNumber minFractionDigits="2" locale="pt_BR" type="currency"/>
+					</p:inputText>
+					
+					<h:outputText for="vCost" value="Custo Variável R$:"/>
+					<p:inputText id="vCost" value="#{veView.vehicle.variableCost}">
+						<f:convertNumber minFractionDigits="2" locale="pt_BR" type="currency"/>
+					</p:inputText>
+				</h:panelGrid>
+				
+				<h:graphicImage value="../icons/finalizar.png" style="width:20pt; height:20pt; float:left; margin-top:0.3%;"/> 
+				<p:commandButton value="Finalizar" style="float:left; margin-left:0.5%;" actionListener="#{veView.insertOrUpdateVehicle}"
+					update="messages, formTabela:vehicleTable, formVeh"/>
+					
+				<h:graphicImage value="../icons/limpar.png" style="width:20pt; height:20pt; float:right; margin-top:0.3%; margin-right:78%;"/> 
+				<p:commandButton value="Limpar" style="float:right; margin-right:70%; margin-top:-2.5%;" 
+					actionListener="#{veView.cancel}" update="formVeh"/>
+			</p:fieldset>
+		</h:form>
+		
+		<h:form id="formTabela">
+			<div id="divConsulta" style="position:relative; height:50%; margin-top:2%;">
+				<p:fieldset legend="Consulta de Veículos">
+					
+					<h:panelGrid columns="6">
+						<h:outputText for="id" value="Código:"/>
+						<p:inputText id="id" value="#{veView.vehicle.id}"/>						
+						
+						<h:outputText for="desc" value="Descrição:"/>
+						<p:inputText id="desc" value="#{veView.vehicle.description}"/>
+						
+						<h:outputText for="cap" value="Capacidade:"/>
+						<p:inputText id="cap" value="#{veView.vehicle.capacity}">
+							<f:convertNumber minFractionDigits="2" locale="pt_BR" pattern="#,##0.00"/>
+						</p:inputText>
+						
+						<p:commandButton value="Consultar" actionListener="#{veView.searchVehicles}" 
+							update="messages, vehicleTable, id, desc, cap"/>
+					</h:panelGrid>					
+					
+					<p:dataTable id="vehicleTable" var="veh" value="#{veView.vehicles}" rows="10"
+	    				paginator="true" style="margin-top:2%;">
+	    				<f:facet name="header">
+	    					Lista de Veículos
+	    				</f:facet>
+	    				
+	    				<p:column headerText="Código">
+	    					<h:outputText value="#{veh.id}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Descrição">
+	    					<h:outputText value="#{veh.description}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Capacidade">
+	    					<h:outputText value="#{veh.capacity}">
+	    						<f:convertNumber minFractionDigits="2" locale="pt_BR" pattern="#,##0.00"/>
+	    					</h:outputText>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Unidade">
+	    					<h:outputText value="#{veh.capacityUnit}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Custo Fixo R$">
+	    					<h:outputText value="#{veh.fixedCost}">
+	    						<f:convertNumber minFractionDigits="2" locale="pt_BR" type="currency"/>
+	    					</h:outputText>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Custo Variável R$">
+	    					<h:outputText value="#{veh.variableCost}">
+	    						<f:convertNumber minFractionDigits="2" locale="pt_BR" type="currency"/>
+	    					</h:outputText>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Alterar">
+	    					<p:commandButton value="Alterar" update="formVeh">
+	    						<f:setPropertyActionListener value="#{veh}" target="#{veView.vehicle}"/>
+	    					</p:commandButton>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Excluir">
+	    					<p:commandButton value="Excluir" oncomplete="PF('reVehDlg').show();" 
+	    						update="removalForm:removalMessage">
+	    						<f:setPropertyActionListener value="#{veh}" target="#{veView.vehicle}"/>
+	    					</p:commandButton>
+	    				</p:column>
+	    				
+    				</p:dataTable>				
+				</p:fieldset>
+			</div>
+		</h:form>
+		
+		<p:dialog id="removalDialog" widgetVar="reVehDlg" showEffect="fade" closable="false" header="Remover Produto">
+    		<h:form id="removalForm">
+    			<h:outputText id="removalMessage" value="Deseja mesmo remover o veículo #{veView.vehicle.description} ?"/>    		
+    			<h:panelGrid columns="2">
+    				<p:commandButton value="Sim"  actionListener="#{veView.removeVehicle}"
+    					oncomplete="PF('reVehDlg').hide();" update="messages, formTabela:vehicleTable"/>
+    				<p:commandButton value="Não" oncomplete="PF('reVehDlg').hide();" actionListener="#{veView.cancel}"/>
+    			</h:panelGrid>
+    		</h:form>    	
+    	</p:dialog>
+	
+	</h:body>
+
+</html>

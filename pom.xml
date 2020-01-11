@@ -1,0 +1,91 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>br.gasque</groupId>
+  <artifactId>vrp-webapp</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>war</packaging>
+  
+	<build>
+	    <plugins>
+	        <plugin>
+	            <artifactId>maven-compiler-plugin</artifactId>
+	            <configuration>
+	                <source>1.8</source>
+	                <target>1.8</target>
+	            </configuration>
+	        </plugin>
+	    </plugins>
+    </build>
+  
+	<repositories>
+	   <repository>
+	       <id>prime-repo</id>
+	       <name>PrimeFaces Maven Repository</name>
+	       <url>http://repository.primefaces.org</url>
+	       <layout>default</layout>
+	   </repository>
+	</repositories>
+  
+  <dependencies>
+  	<dependency>
+  		<groupId>org.primefaces</groupId>
+  		<artifactId>primefaces</artifactId>
+  		<version>6.2</version>
+  	</dependency>
+  	
+  	<dependency>
+  		<groupId>org.apache.myfaces.core</groupId>
+	    <artifactId>myfaces-impl</artifactId>
+	    <version>2.2.12</version>
+  	</dependency>
+  	
+  	<dependency>
+  		<groupId>org.primefaces.themes</groupId>
+  		<artifactId>bootstrap</artifactId>
+  		<version>1.0.10</version>
+  	</dependency>
+  	
+  	<dependency>
+  		<groupId>mysql</groupId>
+  		<artifactId>mysql-connector-java</artifactId>
+  		<version>6.0.6</version>
+  	</dependency>
+  	
+  	<dependency>
+  		<groupId>org.hibernate</groupId>
+  		<artifactId>hibernate-core</artifactId>
+  		<version>5.2.13.Final</version>
+  	</dependency>  	 	
+  	
+  	<dependency>
+	    <groupId>javax.servlet</groupId>
+	    <artifactId>javax.servlet-api</artifactId>
+	    <version>4.0.0</version>
+	</dependency>
+  	
+  	<dependency>
+	    <groupId>org.apache.httpcomponents</groupId>
+	    <artifactId>httpcore</artifactId>
+	    <version>4.4.6</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.apache.httpcomponents</groupId>
+	    <artifactId>httpclient</artifactId>
+	    <version>4.5.3</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.json</groupId>
+	    <artifactId>json</artifactId>
+	    <version>20160810</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>net.java.dev.jna</groupId>
+	    <artifactId>jna</artifactId>
+	    <version>4.5.2</version>
+	</dependency>
+  	
+  </dependencies>  
+</project>

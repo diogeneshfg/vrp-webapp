@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+
+	<h:head>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+			  integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+			  crossorigin=""/>
+		<script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+			  integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+			  crossorigin=""></script>	  
+					
+		<style>
+			#mapid {height: 300px; position: relative; padding: 0px; margin: 0 auto 0 auto;}
+		</style>
+		
+	</h:head>
+	<h:body>     
+		
+		<p:growl id="messages" showDetail="true"/>	
+		
+		<h:form>
+			<p:menubar>
+				<p:menuitem value="Client" url="../client/client.xhtml"/>
+				
+				<p:menuitem value="PDPTW" url="../client/pdp_client.xhtml"/>
+				
+				<p:menuitem value="Product" url="../product/product.xhtml"/>
+				
+				<p:menuitem value="Vehicle" url="../vehicle/vehicle.xhtml"/>
+			</p:menubar>
+		</h:form>
+		
+		<br></br>
+		
+		<div id="divMap">	    	
+			<h:form id="formGmap">    	
+		    	 <div id="mapid"></div>		
+    		</h:form>
+    	</div>
+    	
+    	
+    	<h:form id="formCadastro">
+   			<p:fieldset id="clientFieldset" legend="Client Registration" style="margin-top:2%;">   			
+   				<h:panelGrid columns="4" style="margin-left:3.5%;">
+   					<h:outputText for="nome" value="Name:"/>
+	    			<p:inputText id="nome" value="#{clientView.client.name}" onblur="onNomeLoseFocus(this.value);"/>
+	    			
+	    			<h:outputText value="Type:"/>
+	    			<p:selectOneMenu value="#{clientView.client.type}"> 
+	    				<f:selectItems value="#{clientView.types}" var="type" itemLabel="#{type.name}" itemValue="#{type}"/>
+	    			</p:selectOneMenu>
+   				</h:panelGrid>     				
+   				
+   				<h:panelGrid columns="5" style="margin-left:2.2%;">
+   					<h:outputText for="lat" value="Latitude:"/>
+	    			<p:inputText id="lat" value="#{clientView.client.location.lat}"/>
+	    			
+	    			<h:outputText for="lon" value="Longitude:"/>
+	    			<p:inputText id="lon" value="#{clientView.client.location.lon}"/>	
+	    			
+	    			<p:commandButton value="Find:" actionListener="#{clientView.searchReverseAddress}" 
+	    				oncomplete="PF('adDlg').show();" update="formLocation:locationTable" 
+    					partialSubmit="true" process="lat,lon"/>
+   				</h:panelGrid>
+   				
+   					
+   				<h:panelGrid columns="3">
+   					<h:outputText for="address" value="Address:"/>
+	    			<p:inputText id="address" value="#{clientView.client.location.address}" size="57"/>	  
+	    			<p:commandButton value="Localizar" actionListener="#{clientView.searchAddress}" 
+	    				oncomplete="PF('adDlg').show();" update="formLocation:locationTable" 
+    					partialSubmit="true" process="address"/> 
+    			</h:panelGrid>
+   				
+   				<p:panel id="timeWindowsPanel" style="margin-top:2%;" header="Time Window" >   					
+   					<h:outputText value="Has Time Window ?"/>
+    				<p:selectBooleanButton offLabel="Yes" onLabel="No" 
+    					value="#{clientView.client.timeWindow}" style="margin-left:0.3%;">
+    					<p:ajax update="formCadastro:timeWindowsPanel" 
+    						listener="#{clientView.addTimeWindow}"/>
+    				</p:selectBooleanButton>	
+  					
+  					<br/>
+  					<br/>
+					<h:outputText value="Time Window Open:" rendered="#{clientView.client.timeWindow}"/>
+					<p:inputMask mask="99:99" value="#{clientView.timeWindow.timeWindowOpen}" 
+						style="width:4%; margin-left:0.3%;" 
+						rendered="#{clientView.client.timeWindow}"/>
+						
+					
+					<h:outputText value="Time Window Close:" style="margin-left:1%;" rendered="#{clientView.client.timeWindow}"/>
+					<p:inputMask mask="99:99" value="#{clientView.timeWindow.timeWindowClose}" 
+						style="width:4%; margin-left:0.3%;" 
+						rendered="#{clientView.client.timeWindow}"/>
+					
+					<h:outputText value="Service Duration:" style="margin-left:1%;" rendered="#{clientView.client.timeWindow}"/>
+					<p:inputMask mask="99:99" value="#{clientView.timeWindow.serviceDuration}" 
+						style="width:4%; margin-left:0.3%;" 
+						rendered="#{clientView.client.timeWindow}"/>   
+											
+   					
+   				</p:panel>
+   				
+   				<p:commandButton value="Finalize" actionListener="#{clientView.insertOrUpdateClient}" 
+   					update="messages,formCadastro,formLocation,formTables" oncomplete="cleanMarker()" 
+   					style="margin-top:2%;"/>
+   					
+   				<p:commandButton value="Clear" actionListener="#{clientView.cancel}" update="formCadastro" 
+   					style="margin-top:2%;"/>
+   				
+   			</p:fieldset>
+    	</h:form>
+    	
+  	    	
+    	
+    	   	    	
+    	<h:form id="formTables">
+    		<div id="divAllClients" style="position:relative; height:50%; margin-top:2%;">
+    			<p:fieldset id="allClients" legend="Search Clients">
+	    			
+	    			<h:panelGrid columns="4">	 	    					    				  			
+	    				<h:outputText for="codigo" value="Code:"/>
+	    				<p:inputText id="codigo" value="#{clientView.client.id}"/>
+	    				
+	    				<h:outputText for="nome" value="Name:"/>
+	    				<p:inputText id="nome" value="#{clientView.client.name}"/>
+	    					    			
+	    				<p:commandButton value="Search" actionListener="#{clientView.searchClients}" 
+	    					update="clientTable, codigo, nome"/>
+	    			</h:panelGrid>
+	    			
+	    			
+	    			<p:dataTable id="clientTable" var="cli" value="#{clientView.clients}" rows="10"
+	    				paginator="true" style="margin-top:2%;">
+	    				<f:facet name="header">
+	    					Clients List
+	    				</f:facet>
+	    					    				
+	    				<p:column headerText="Name">
+	    					<h:outputText value="#{cli.name}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Type" style="width:5%;">
+	    					<h:outputText value="#{cli.type.name}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Lat" style="width:5%;">
+	    					<h:outputText value="#{cli.location.lat}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Lon" style="width:5%;">
+	    					<h:outputText value="#{cli.location.lon}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Address" style="width:40%;">
+	    					<h:outputText value="#{cli.location.address}"/>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Update">
+	    					<p:commandButton value="Alterar" update="formCadastro" 
+	    						oncomplete="getElementById('formCadastro:nome').focus()" immediate="true">
+	    						<f:setPropertyActionListener target="#{clientView.clientForAction}" value="#{cli}"/>
+	    					</p:commandButton>
+	    				</p:column>
+	    				
+	    				<p:column headerText="Delete">
+	    					<p:commandButton value="Delete" oncomplete="PF('reCliDlg').show();" update="removalForm:removalMessage">
+	    						<f:setPropertyActionListener target="#{clientView.clientForAction}" value="#{cli}"/>
+	    					</p:commandButton>
+	    				</p:column>
+	    			</p:dataTable>
+    			</p:fieldset>    		
+    		</div>  
+    	</h:form>	
+    	
+    	<p:dialog id="addressDialog" widgetVar="adDlg" showEffect="fade" closable="true" header="Localização">
+    		<h:form id="formLocation">
+	    		<p:dataTable id="locationTable" var="loc" value="#{clientView.locations}" style="width:80%;">
+	    			<f:facet name="header">
+	    				Nearby Addresses found
+	   				</f:facet>
+	   				
+	   				<p:column headerText="Latitude" style="width:10%;">
+	   					<h:outputText value="#{loc.lat}"/>
+	   				</p:column>
+	   				
+	   				<p:column headerText="Longitude" style="width:10%;">
+	   					<h:outputText value="#{loc.lon}"/>
+	   				</p:column>
+	   				
+	   				<p:column headerText="Address">
+	   					<h:outputText value="#{loc.address}"/>
+	   				</p:column>
+	   				
+	   				<p:column headerText="Select" style="width:15%;">
+	   					<p:commandButton value="Pick" oncomplete="PF('adDlg').hide(); addMarkerFromAddress(#{loc.lat},#{loc.lon});" 
+	   						update="formCadastro:lat, formCadastro:lon, formCadastro:address">
+	   						<f:setPropertyActionListener target="#{clientView.locationForAction}" value="#{loc}"/>
+	   					</p:commandButton>
+	   				</p:column>
+	    		</p:dataTable>
+    		</h:form>
+    	</p:dialog>
+    	
+    	<p:dialog id="removalDialog" widgetVar="reCliDlg" showEffect="fade" closable="false" header="Delete Client">
+    		<h:form id="removalForm">
+    			<h:outputText id="removalMessage" value="Do you wish to delete client: #{clientView.client.name} ?"/>    		
+    			<h:panelGrid columns="2">
+    				<p:commandButton value="Yes" actionListener="#{clientView.removeClient}" 
+    					update="messages, formTables:clientTable" oncomplete="PF('reCliDlg').hide();"/>
+    				<p:commandButton value="No" actionListener="#{clientView.cancel}" oncomplete="PF('reCliDlg').hide();"/>
+    			</h:panelGrid>
+    		</h:form>    	
+    	</p:dialog>
+    	
+    	
+    	<script type="text/javascript">
+    		/*<![CDATA[*/
+				var mymap = L.map('mapid').setView([-20.81, -49.37], 13);
+				
+				L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+				        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+				    }).addTo(mymap);
+				
+								
+				var marker;
+				var latlong;
+				var title;
+				
+				var allMarkers = new Array();
+				
+				function onMapClick(e){		
+					latlong = e.latlng;
+					var inputLat = document.getElementById('formCadastro:lat');
+					var inputLong = document.getElementById('formCadastro:lon');
+					
+					inputLat.value = latlong.lat.toFixed(5);
+					inputLong.value = latlong.lng.toFixed(5);					
+					addMarker(latlong);					
+				}
+				
+				function onNomeLoseFocus(nome){				
+					title = nome;
+				}
+				
+				function addMarker(latlong){	
+					if(marker != null){
+						mymap.removeLayer(marker);
+					}
+					marker = L.marker(latlong).addTo(mymap);
+					marker.bindPopup(title).openPopup();
+					allMarkers.push(marker);
+				}
+				
+				function addMarkerFromAddress(lat, lon){				
+					var latlon = L.latLng(lat, lon);
+					addMarker(latlon);
+				}
+				
+				function cleanMarker(){
+					if(marker != null){
+						mymap.removeLayer(marker);
+					}
+				}
+				
+				function onMarkerRemove(e){				
+					var inputLat = document.getElementById('formDlgRemove:latitude');
+					var inputLong = document.getElementById('formDlgRemove:longitude');
+					var lat = inputLat.value;
+					var lng = inputLong.value;
+					var length = allMarkers.length;				
+					for(var i = 0; i < length; i++){
+						var delMarker = allMarkers[i];
+						if((delMarker.getLatLng().lat == lat) && (delMarker.getLatLng().lng == lng)){
+							mymap.removeLayer(delMarker);
+						}
+					}						
+				}
+				
+				mymap.on("click", onMapClick);
+				
+			 /*]]>*/
+		</script>
+    	
+	</h:body>
+</html>

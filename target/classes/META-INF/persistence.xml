@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+	<persistence-unit name="vrp-webapp-pu" transaction-type="RESOURCE_LOCAL">
+		<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+		<class>br.gasque.vrp_webapp.entity.Client</class>
+		<class>br.gasque.vrp_webapp.entity.constrains.Pairing</class>
+		<class>br.gasque.vrp_webapp.entity.DemandMet</class>
+		<class>br.gasque.vrp_webapp.entity.Route</class>
+		<class>br.gasque.vrp_webapp.entity.ClientRoute</class>
+		<class>br.gasque.vrp_webapp.entity.RoutingPlan</class>
+		<class>br.gasque.vrp_webapp.entity.ServiceTime</class>
+		<class>br.gasque.vrp_webapp.entity.Vehicle</class>
+		<class>br.gasque.vrp_webapp.entity.Product</class>
+		<class>br.gasque.vrp_webapp.entity.Demand</class>
+		<class>br.gasque.vrp_webapp.entity.Location</class>
+		<class>br.gasque.vrp_webapp.entity.constrains.ClientTime</class>
+		<properties>
+			<property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver"/>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQL57Dialect"/>
+			<property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/vrp_webapp?useSSL=false&amp;serverTimezone=UTC"/>
+			<property name="hibernate.connection.username" value="root"/>
+			<property name="hibernate.connection.password" value="root"/>
+			<property name="hibernate.show_sql" value="true"/>
+			<property name="hibernate.hbm2ddl.auto" value="validate"/>
+		</properties>
+	</persistence-unit>
+</persistence>
