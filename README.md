@@ -29,5 +29,5 @@ This research was supported by the São Paulo Research Foundation (FAPESP) [gran
 9, 16/01860-1, 13/07375-0]; the National Council for Scientific and Technological Development (CNPq-Brazil) [grant
 number 304601/2017-9]; and Coordenação de Aperfeiçoamento de Pessoal de Nível Superior - Brazil (CAPES) - Finance Code 001.
 
-  - Special tanks to Dr. Pedro Munari, Dr. Reinaldo Morabito and all from Operational Research Group (GPO) at Production Engineering Department-UFSCAR São Carlos-SP Brazil.
+  - Special thanks to Dr. Pedro Munari, Dr. Reinaldo Morabito and all from Operational Research Group (GPO) at Production Engineering Department-UFSCAR São Carlos-SP Brazil.
   
