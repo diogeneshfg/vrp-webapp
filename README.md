@@ -12,7 +12,7 @@ This interface was bulti using:
   - Leaflet 1.3.4;
   - Mysql Server Community 5.7;
   
-This interface was bulti mainly to help researchers an users in how to integrate cientific tools like the ones developed for
+This interface was built mainly to help researchers an users in how to integrate cientific tools like the ones developed for
 combinatorial optmizations problems like VRP, IRP etc. 
 This is because the majority of the solution methods and models are coded in C/C++ due the hard nature of finding solutions for those problems.
 
